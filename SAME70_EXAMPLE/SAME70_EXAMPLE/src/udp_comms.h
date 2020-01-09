@@ -13,6 +13,7 @@
 
 int init_udp_comms(void);
 void udp_task(void);
+void SendStatusMessage(void);
 void ParseOutputControl(uint8_t outputs);
 //Populates input/output status into a single byte
 uint8_t GetOutputStatus(void);

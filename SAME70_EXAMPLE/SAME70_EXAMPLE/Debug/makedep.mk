@@ -4,6 +4,8 @@
 
 src\gpio\same70_gpio.c
 
+src\messages\checksum.c
+
 src\timer\system_timer.c
 
 src\udp_comms.c

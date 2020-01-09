@@ -10,10 +10,17 @@
 #include "message_defines.h"
 #include "same70_gpio.h"
 #include "string.h"
+#include "checksum.h"
 
 #define LOCAL_UDP_PORT 7777
 #define REMOTE_UDP_PORT 7778
 #define UDP_BUFFER_SIZE 256
+
+//use this for casting message struct to byte array
+//used when calculating checksum
+//update MAX_MESSAGE_SIZE if future messages are larger
+#define MAX_MESSAGE_SIZE 10
+uint8_t message_bytes[MAX_MESSAGE_SIZE];
 
 struct udp_pcb *udp_socket;
 struct StatusMessage *status_message;
@@ -24,6 +31,9 @@ struct ip_addr srcaddr;
 /* Incoming udp message handler */
 static void udp_recv_message(void *arg, struct udp_pcb *upcb, struct pbuf *p, const ip_addr_t *addr, u16_t port)
 {
+	uint8_t msg_id;
+	uint8_t msg_size;
+	uint16_t msg_checksum;
 	uint8_t* data;
 	LWIP_UNUSED_ARG(arg);
 	if (p != NULL) {
@@ -47,13 +57,21 @@ static void udp_recv_message(void *arg, struct udp_pcb *upcb, struct pbuf *p, co
 		}
 		
 		//Good header, get message ID and size
-		uint8_t msg_id = (uint8_t)data[4];
-		uint8_t msg_size = (uint8_t)data[5];
+		msg_id = (uint8_t)data[4];
+		msg_size = (uint8_t)data[5];
 		
 		if (msg_id == CONTROL_MESSAGE_ID) {
+			msg_checksum = (data[CONTROL_MESSAGE_SIZE - 1] << 8) + data[CONTROL_MESSAGE_SIZE - 2];
+			if (calculate_checksum(&data[0], CONTROL_MESSAGE_SIZE) != msg_checksum) {
+				//bad checksum
+				return;
+			}
+			
 			memcpy(control_message, data, CONTROL_MESSAGE_SIZE);
 			printf("Received control message, output: %#X \r\n", control_message->output_status);
 			ParseOutputControl(control_message->output_status);
+			//Send confirmation back to client
+			SendStatusMessage();
 		}		
 
 		/* free the pbuf */
@@ -98,13 +116,20 @@ int init_udp_comms(void)
 
 /* udp task, send status message when called */
 void udp_task(void) {
+	SendStatusMessage();
+}
+
+void SendStatusMessage(void) {
 	status_message->output_status = GetOutputStatus();
 	status_message->input_status = GetInputStatus();
 
+	memcpy(&message_bytes, (uint8_t*)&status_message[0], sizeof(struct StatusMessage));
+	status_message->checksum = calculate_checksum(message_bytes, sizeof(struct StatusMessage));
+
 	struct pbuf *udp_buffer = pbuf_alloc(PBUF_TRANSPORT, UDP_BUFFER_SIZE, PBUF_RAM);
 	pbuf_take(udp_buffer, status_message, STATUS_MESSAGE_SIZE);
-	udp_sendto(udp_socket, udp_buffer, &dstaddr, REMOTE_UDP_PORT);	
-	pbuf_free(udp_buffer);	
+	udp_sendto(udp_socket, udp_buffer, &dstaddr, REMOTE_UDP_PORT);
+	pbuf_free(udp_buffer);
 }
 
 /* Set outputs according to control message received */
