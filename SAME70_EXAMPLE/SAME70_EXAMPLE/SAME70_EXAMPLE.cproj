@@ -836,6 +836,12 @@
     <Compile Include="src\gpio\same70_gpio.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="src\messages\checksum.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="src\messages\checksum.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="src\messages\message_defines.h">
       <SubType>compile</SubType>
     </Compile>
