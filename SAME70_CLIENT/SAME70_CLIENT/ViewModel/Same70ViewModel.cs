@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using static SAME70_CLIENT.Values.Same70Defines;
 using SAME70_CLIENT.Model;
 
@@ -141,6 +135,7 @@ namespace SAME70_CLIENT.ViewModel
         {
             _same70Model = model;
 
+            //set actions to take when button is pressed
             ToggleOutputD0RelayCommand = new RelayCommand(o => ToggleOutput(OUTPUT_D0_MASK));
             ToggleOutputD1RelayCommand = new RelayCommand(o => ToggleOutput(OUTPUT_D1_MASK));
             ToggleOutputD2RelayCommand = new RelayCommand(o => ToggleOutput(OUTPUT_D2_MASK));
@@ -153,6 +148,7 @@ namespace SAME70_CLIENT.ViewModel
             Update();
         }
 
+        /* Updates the state of IO's in View */
         public void Update()
         {
             OutputD0 = _same70Model.OutputD0;
@@ -174,6 +170,24 @@ namespace SAME70_CLIENT.ViewModel
             InputD53 = _same70Model.InputD53;
         }
 
+        /*
+         * Toggles outputs on SAME70 board
+         * <param name="outputMask">State to set outputs to</param>
+         * 
+         * <usage>
+         * There are 8 outputs, each one represented by one bit in outputMask
+         * 00000000
+         * D7 <- D0
+         * 
+         * Setting bit to 1 turns the output on
+         * Setting bit to 0 turns the output off
+         * 
+         * example:
+         * ToggleOutput(5);
+         * Binary representation of 5 is 00000101
+         * This will turn on OutputD0 and OutputD2
+         * </usage>
+         */
         public void ToggleOutput(byte outputMask)
         {
             _same70Model.ToggleOutput(outputMask);

@@ -63,6 +63,7 @@
 #define STATUS_MESSAGE_SIZE 10
 #define CONTROL_MESSAGE_SIZE 9
 
+//used to send state of board to client
 #pragma pack(push, 1)
 struct StatusMessage {
 	uint8_t header_byte1;
@@ -77,6 +78,7 @@ struct StatusMessage {
 };
 #pragma pack(pop)
 
+//message from client to change state of IO's
 #pragma pack(push, 1)
 struct ControlMessage {
 	uint8_t header_byte1;

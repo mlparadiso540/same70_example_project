@@ -28,11 +28,12 @@ void InitializeSystemTimer(void)
 	SysTick_Config(sysclk_get_cpu_hz() / 1000);
 }
 
-
+/* returns the number of milliseconds since board was powered on */
 uint32_t GetSystemTimeMilliseconds(void) {
 	return system_time_ms;
 }
 
+/* checks if <interval> milliseconds has elapsed since <start_time> */
 bool HasXMillisecondsElapsed(uint32_t interval, uint32_t start_time) {
 	return ((system_time_ms - start_time) > interval);
 }

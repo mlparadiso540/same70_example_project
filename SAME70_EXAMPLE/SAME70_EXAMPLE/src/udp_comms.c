@@ -119,6 +119,7 @@ void udp_task(void) {
 	SendStatusMessage();
 }
 
+/* Sends current IO state to client */
 void SendStatusMessage(void) {
 	status_message->output_status = GetOutputStatus();
 	status_message->input_status = GetInputStatus();
@@ -144,6 +145,7 @@ void ParseOutputControl(uint8_t outputs) {
 	SetOutputD7((outputs & OUTPUT_D7_MASK) >> OUTPUT_D7_SHIFT);
 }
 
+/* Returns byte representation of current output state */
 uint8_t GetOutputStatus(void) {
 	uint8_t status = 0;
 	
@@ -182,6 +184,7 @@ uint8_t GetOutputStatus(void) {
 	return status;
 }
 
+/* Returns byte representation of current input state */
 uint8_t GetInputStatus(void) {
 	uint8_t status = 0;
 	

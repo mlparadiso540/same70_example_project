@@ -1,17 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using SAME70_CLIENT.Model;
 using SAME70_CLIENT.ViewModel;
@@ -32,6 +20,7 @@ namespace SAME70_CLIENT
             InitializeComponent();
             Application.Current.MainWindow.Closing += MainWindow_Closing;
 
+            //Instantiate Model, ViewModel, and set data context
             same70Model = new Same70Model();
             same70ViewModel = new Same70ViewModel(same70Model);
             this.DataContext = same70ViewModel;
@@ -43,11 +32,13 @@ namespace SAME70_CLIENT
             dispatcherTimer.Start();
         }
 
+        /* Execute this code on every tick of dispatcherTimer */
         private void UpdateDispatcherTimer(object sender, EventArgs e)
         {
             same70ViewModel.Update();
         }
 
+        /* Clean shutdown */
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             same70Model.StopUdpListener();
