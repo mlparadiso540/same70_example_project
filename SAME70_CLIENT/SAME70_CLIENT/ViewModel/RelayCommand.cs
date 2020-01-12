@@ -1,12 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SAME70_CLIENT.ViewModel
 {
+    /*
+     * RelayCommand defines an action to take when something happens in a View
+     * 
+     * <usage>
+     * bind RelayCommand to an object in View:
+     * <Button Command="{Binding myCommand}"/>
+     * 
+     * define RelayCommand in ViewModel:
+     * public ICommand myCommand { get; set; }
+     * 
+     * public myViewModel() {
+     * //constructor code here
+     *  myCommand = new RelayCommand(o=> myFunction());
+     * }
+     * 
+     * public void myFunction { //do something here }
+     * 
+     * myFunction() will execute when Button is pressed
+     * </usage>
+     */
     public class RelayCommand : ICommand
     {
         private readonly Action<object> _execute;

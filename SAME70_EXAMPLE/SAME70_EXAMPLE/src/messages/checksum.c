@@ -8,7 +8,12 @@
 
 #include "checksum.h"
 
-uint16_t calculate_checksum(uint8_t *bytes, uint32_t size) {
+uint16_t calculate_checksum(uint8_t *bytes, uint32_t size) {	
+	if (size <= 2) {
+		//message too small
+		return 0;
+	}
+	
 	uint16_t checksum = 0;
 	
 	for(int i = 0; i < (size - 2); i++) {
