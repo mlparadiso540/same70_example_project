@@ -20,6 +20,7 @@ bool flagOutputD6;
 bool flagOutputD7;
 bool flagLED;
 
+/* Initialized all IO's used in this project */
 void InitializeIoPorts(void) {
 	
 	flagOutputD0 = 0;

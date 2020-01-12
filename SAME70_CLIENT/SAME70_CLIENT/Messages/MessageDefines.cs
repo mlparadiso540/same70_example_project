@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAME70_CLIENT.Messages
 {
+    /* Define important values here */
     static class MessageDefines
     {
+        /* 
+         * standard header for all messages
+         * messages without this header will be ignored
+         */
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Same70MessageHeader
         {
@@ -20,6 +21,7 @@ namespace SAME70_CLIENT.Messages
             public byte messageSize;
         }
 
+        /* Sent by client, commands IO change on SAME70 board */
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Same70ControlMessageBody
         {
@@ -34,6 +36,7 @@ namespace SAME70_CLIENT.Messages
             public Same70ControlMessageBody msg;
         }
 
+        /* Message from SAME70 board representing current IO status */
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct Same70StatusMessageBody
         {
@@ -49,6 +52,7 @@ namespace SAME70_CLIENT.Messages
             public Same70StatusMessageBody msg;
         }
 
+        /* Converts byte array to struct */
         public static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
         {
             var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
@@ -57,6 +61,7 @@ namespace SAME70_CLIENT.Messages
             return result;
         }
 
+        /* Converts struct to byte array */
         public static byte[] StructToBytes<T>(T structure) where T : struct
         {
             int size = Marshal.SizeOf(structure);
@@ -74,10 +79,17 @@ namespace SAME70_CLIENT.Messages
             return rawData;
         }
 
-        //gets the message checksum for comparison
-        //use to check for valid checksum
+        /*
+         * gets the message checksum for comparison
+         * use to check for valid checksum
+         */
         public static UInt16 calculateChecksum(byte[] bytes, int size)
         {
+            if (size <= 2)
+            {
+                //message too small
+                return 0;
+            }
             UInt16 checksum = 0;
             for (int i = 0; i < (size - 2); i++)
             {
@@ -87,8 +99,14 @@ namespace SAME70_CLIENT.Messages
             return checksum;
         }
 
+        /* calculates checksum and packs into last two bytes of array */
         public static void packChecksum(byte[] bytes, int size)
         {
+            if (size <= 2)
+            {
+                //message too small
+                return;
+            }
             UInt16 checksum = 0;
             for (int i = 0; i < (size - 2); i++)
             {

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SAME70_CLIENT.Values
 {
+    /* Define important values here */
     static class Same70Defines
     {
         public const int UDP_REMOTE_PORT = 7777; //port on SAME70 board

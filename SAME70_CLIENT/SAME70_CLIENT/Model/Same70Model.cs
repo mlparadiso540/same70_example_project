@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static SAME70_CLIENT.Messages.MessageDefines;
 using static SAME70_CLIENT.Values.Same70Defines;
 using System.Net.Sockets;
-using System.Threading;
 using System.Net;
 
 namespace SAME70_CLIENT.Model
@@ -36,7 +31,7 @@ namespace SAME70_CLIENT.Model
         private Same70ControlMessage _controlMessage;
 
         public Same70Model()
-        { 
+        {
             OutputD0 = false;
             OutputD1 = false;
             OutputD2 = false;
@@ -68,9 +63,10 @@ namespace SAME70_CLIENT.Model
             _controlMessage.header.messageSize = CONTROL_MESSAGE_SIZE;
 
             _udpClient = null;
-            StartUdpListener(); 
+            StartUdpListener();
         }
 
+        /* Start listening for UDP messages */
         public void StartUdpListener()
         {
             if (_udpClient == null)
@@ -88,26 +84,31 @@ namespace SAME70_CLIENT.Model
             }
         }
 
+        /* Stop listening for UDP messages */
         public void StopUdpListener()
         {
             _udpClient.Close();
             _udpClient = null;
         }
 
-        //CallBack
+        /* 
+         * Received message callback
+         * This code is executed when a UDP message is received
+         */
         private void recv(IAsyncResult res)
         {
             byte[] received = _udpClient.EndReceive(res, ref _remoteEndPoint);
 
             //Process data
             ProcessMessage(received);
-            
+
             //continue to listen for data
             _udpClient.BeginReceive(new AsyncCallback(recv), null);
         }
 
+        /* Process new message received */
         public void ProcessMessage(byte[] data)
-        { 
+        {
             //check for valid header
             if (data[0] != HEADER_BYTE_1)
             {
@@ -127,7 +128,7 @@ namespace SAME70_CLIENT.Model
             }
             byte id = data[4];
             byte size = data[5];
-            
+
             //process status message
             if (id == STATUS_MESSAGE_ID)
             {
@@ -168,6 +169,24 @@ namespace SAME70_CLIENT.Model
 
         }
 
+        /*
+         * Toggles outputs on SAME70 board
+         * <param name="outputMask">State to set outputs to</param>
+         * 
+         * <usage>
+         * There are 8 outputs, each one represented by one bit in outputMask
+         * 00000000
+         * D7 <- D0
+         * 
+         * Setting bit to 1 turns the output on
+         * Setting bit to 0 turns the output off
+         * 
+         * example:
+         * ToggleOutput(5);
+         * Binary representation of 5 is 00000101
+         * This will turn on OutputD0 and OutputD2
+         * </usage>
+         */
         public void ToggleOutput(byte outputMask)
         {
             byte newOutput = 0;
