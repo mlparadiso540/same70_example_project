@@ -23,8 +23,8 @@
 uint8_t message_bytes[MAX_MESSAGE_SIZE];
 
 struct udp_pcb *udp_socket;
-struct StatusMessage *status_message;
-struct ControlMessage *control_message;
+struct StatusMessage status_message;
+struct ControlMessage control_message;
 struct ip_addr dstaddr;
 struct ip_addr srcaddr;
 
@@ -67,9 +67,9 @@ static void udp_recv_message(void *arg, struct udp_pcb *upcb, struct pbuf *p, co
 				return;
 			}
 			
-			memcpy(control_message, data, CONTROL_MESSAGE_SIZE);
-			printf("Received control message, output: %#X \r\n", control_message->output_status);
-			ParseOutputControl(control_message->output_status);
+			memcpy(&control_message, data, CONTROL_MESSAGE_SIZE);
+			printf("Received control message, output: %#X \r\n", control_message.output_status);
+			ParseOutputControl(control_message.output_status);
 			//Send confirmation back to client
 			SendStatusMessage();
 		}		
@@ -85,18 +85,15 @@ int init_udp_comms(void)
 	IP4_ADDR(&dstaddr,192,168,0,99); // destination
 	IP4_ADDR(&srcaddr,192,168,0,100); // source
 	
-	control_message = (struct ControlMessage *) malloc(sizeof(struct ControlMessage));	
-	status_message = (struct StatusMessage *) malloc(sizeof(struct StatusMessage));
-	
-	status_message->header_byte1 = HEADER_BYTE_1;
-	status_message->header_byte2 = HEADER_BYTE_2;
-	status_message->header_byte3 = HEADER_BYTE_3;
-	status_message->header_byte4 = HEADER_BYTE_4;
-	status_message->msg_id = STATUS_MESSAGE_ID;
-	status_message->msg_size = STATUS_MESSAGE_SIZE;
-	status_message->output_status = 0;
-	status_message->input_status = 0;
-	status_message->checksum = 0;
+	status_message.header_byte1 = HEADER_BYTE_1;
+	status_message.header_byte2 = HEADER_BYTE_2;
+	status_message.header_byte3 = HEADER_BYTE_3;
+	status_message.header_byte4 = HEADER_BYTE_4;
+	status_message.msg_id = STATUS_MESSAGE_ID;
+	status_message.msg_size = STATUS_MESSAGE_SIZE;
+	status_message.output_status = 0;
+	status_message.input_status = 0;
+	status_message.checksum = 0;
 	
 	udp_socket = udp_new();
 	if (udp_socket == NULL) {
@@ -121,14 +118,14 @@ void udp_task(void) {
 
 /* Sends current IO state to client */
 void SendStatusMessage(void) {
-	status_message->output_status = GetOutputStatus();
-	status_message->input_status = GetInputStatus();
+	status_message.output_status = GetOutputStatus();
+	status_message.input_status = GetInputStatus();
 
-	memcpy(&message_bytes, (uint8_t*)&status_message[0], sizeof(struct StatusMessage));
-	status_message->checksum = calculate_checksum(message_bytes, sizeof(struct StatusMessage));
+	memcpy(&message_bytes, (uint8_t*)&status_message, sizeof(struct StatusMessage));
+	status_message.checksum = calculate_checksum(message_bytes, sizeof(struct StatusMessage));
 
 	struct pbuf *udp_buffer = pbuf_alloc(PBUF_TRANSPORT, UDP_BUFFER_SIZE, PBUF_RAM);
-	pbuf_take(udp_buffer, status_message, STATUS_MESSAGE_SIZE);
+	pbuf_take(udp_buffer, &status_message, STATUS_MESSAGE_SIZE);
 	udp_sendto(udp_socket, udp_buffer, &dstaddr, REMOTE_UDP_PORT);
 	pbuf_free(udp_buffer);
 }
