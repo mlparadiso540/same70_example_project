@@ -32,7 +32,7 @@ D18-D19 and D52-D53 are configured as pull-ups. They are 3.3v in their normal st
 When the SAME70 CLIENT is run, the following screen is displayed<br/>
 ![image client](https://github.com/mlparadiso540/same70_example_project/blob/master/images/SAME70_CLIENT.png?raw=true)<br/><br/>
 Clicking a Toggle button will switch the respective IO on/off. The circle indicator above each button will turn green when the respective IO is outputting 3.3v, and will turn gray when outputting 0v. The circle indicator under each input will turn green when the respective input is triggered. For D14-D17 (pull-down inputs), they will turn green when 3.3v is applied. For D18-D19 and D52-D53 (pull-up inputs), they will turn green when ground is applied. <br/>
-In the screenshot below:
+In the screenshot below:<br/>
 -D0 is outputting 3.3v<br/>
 -D14 has 3.3v applied<br/>
 -D53 is grounded<br/>
